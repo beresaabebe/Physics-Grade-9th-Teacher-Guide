@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#044741</color>
+    <color name="colorPrimaryDark">#0c554e</color>
+    <color name="colorAccent">#0a4c36</color>
+    <color name="text">#423E3E</color>
+    <color name="icon">#0b8770</color>
+    <color name="bg">#FDFDFD</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="maths">#00b050</color>
+    <color name="geo">#2fac51</color>
+    <color name="cit">#00a650</color>
+    <color name="bio">#1aaca2</color>
+    <color name="ao">#11ac50</color>
+    <color name="hist">#07ab52</color>
+</resources>
