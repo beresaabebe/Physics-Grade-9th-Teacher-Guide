@@ -71,6 +71,15 @@
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
+            <LinearLayout
+                android:id="@+id/banner_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/adView_container"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:orientation="vertical"/>
+
         </RelativeLayout>
 
     </ScrollView>

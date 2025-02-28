@@ -6,11 +6,13 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +25,8 @@ import com.beckytech.physicsgrade9thteacherguide.contents.AboutImages;
 import com.beckytech.physicsgrade9thteacherguide.contents.AboutName;
 import com.beckytech.physicsgrade9thteacherguide.contents.AboutUrlContents;
 import com.beckytech.physicsgrade9thteacherguide.model.AboutModel;
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -31,6 +35,7 @@ import com.google.android.gms.ads.MobileAds;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnLinkClicked {
     private final AboutImages images = new AboutImages();
@@ -38,6 +43,7 @@ public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnL
     private final AboutUrlContents urlContents = new AboutUrlContents();
     List<AboutModel> modelList;
     private AdView adView;
+    private com.facebook.ads.AdView fbAds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +53,44 @@ public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnL
         });
         adaptiveAds();
         allContents();
+        facebookAds();
+    }
+
+    private void facebookAds() {
+        Random random = new Random();
+        int rand = random.nextInt(100) + 1;
+        LinearLayout banner_container = findViewById(R.id.banner_container);
+        if (rand % 3 == 0)
+            fbAds = new com.facebook.ads.AdView(this, "813997437115809_1166976755151207", com.facebook.ads.AdSize.RECTANGLE_HEIGHT_250);
+        else
+            fbAds = new com.facebook.ads.AdView(this, "813997437115809_1166980901817459", com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+        banner_container.addView(fbAds);
+        fbAds.loadAd(fbAds.buildLoadAdConfig().withAdListener(new AdListener() {
+            @Override
+            public void onError(Ad ad, com.facebook.ads.AdError adError) {
+                Log.d(AboutActivity.this.getPackageName(), "onError");
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+                Log.d(AboutActivity.this.getPackageName(), "onAdLoaded");
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+                Log.d(AboutActivity.this.getPackageName(), "onAdClicked");
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+                Log.d(AboutActivity.this.getPackageName(), "onLoggingImpression");
+            }
+        }).build());
     }
 
     private void allContents() {
         ImageButton back_btn = findViewById(R.id.ib_back);
-        back_btn.setOnClickListener(v -> onBackPressed());
+        back_btn.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
         back_btn.setColorFilter(ContextCompat.getColor(this, R.color.white));
         String str = "About us";
         TextView title = findViewById(R.id.tv_title);
@@ -134,15 +173,13 @@ public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnL
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
     protected void onDestroy() {
         if (adView != null) {
             adView.destroy();
         }
+        if (fbAds != null)
+            fbAds.destroy();
+
         super.onDestroy();
     }
 }

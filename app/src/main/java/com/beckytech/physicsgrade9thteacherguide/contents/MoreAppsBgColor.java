@@ -10,6 +10,7 @@ public class MoreAppsBgColor {
             R.color.colorPrimary,
             R.color.bio,
             R.color.ao,
-            R.color.cit
+            R.color.cit,
+            R.color.colorPrimaryDark
     };
 }

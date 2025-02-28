@@ -25,6 +25,7 @@ public class PrivacyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_privacy);
         allContents();
     }
+
     @SuppressLint("SetJavaScriptEnabled")
     private void allContents() {
         ImageButton ib_back = findViewById(R.id.ib_back);
@@ -42,7 +43,7 @@ public class PrivacyActivity extends AppCompatActivity {
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         webView.getSettings().getLoadsImagesAutomatically();
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebViewClient(new WebViewClient(){
+        webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);

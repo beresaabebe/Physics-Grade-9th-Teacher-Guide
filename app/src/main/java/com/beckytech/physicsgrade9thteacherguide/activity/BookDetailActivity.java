@@ -43,8 +43,8 @@ public class BookDetailActivity extends AppCompatActivity {
         share_btn.setOnClickListener(view -> {
             String url = "https://play.google.com/store/apps/details?id=";
             Intent intent = new Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
-                    .putExtra(Intent.EXTRA_TEXT, "Sharing is caring, but not my toothbrush. Share me and let others also use me.\n"+
-                            url+getPackageName())
+                    .putExtra(Intent.EXTRA_TEXT, "Sharing is caring, but not my toothbrush. Share me and let others also use me.\n" +
+                            url + getPackageName())
                     .setType("text/plain");
             startActivity(Intent.createChooser(intent, "Share with"));
         });
@@ -96,7 +96,8 @@ public class BookDetailActivity extends AppCompatActivity {
     }
 
     private void adaptiveAds() {
-        MobileAds.initialize(this, initializationStatus -> {});
+        MobileAds.initialize(this, initializationStatus -> {
+        });
         FrameLayout adContainerView = findViewById(R.id.adView_container);
         //Create an AdView and put it into your FrameLayout
         adView = new AdView(this);

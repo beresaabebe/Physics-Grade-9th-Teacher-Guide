@@ -8,6 +8,7 @@ public class MoreAppUrl {
             "com.beckytech.physicsgrade9thteacherguide",
             "com.beckytech.biologygrade9studenttextbook",
             "com.beckytech.afaanoromookutaa9ffaa",
-            "com.beckytech.citizenshipeducationgrade9studenttextbook"
+            "com.beckytech.citizenshipeducationgrade9studenttextbook",
+            ""
     };
 }

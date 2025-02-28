@@ -8,6 +8,7 @@ public class MoreAppTitle {
             "Physics Grade 9th Teacher Guide",
             "Biology Grade 9th Student Textbook",
             "Afaan Oromoo Kutaa 9ffaa",
-            "Citizenship Education Grade 9th Student Textbook"
+            "Citizenship Education Grade 9th Student Textbook",
+            "Get More From Play Store"
     };
 }

@@ -1,12 +1,12 @@
 package com.beckytech.physicsgrade9thteacherguide;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +37,8 @@ import com.beckytech.physicsgrade9thteacherguide.contents.ContentStartPage;
 import com.beckytech.physicsgrade9thteacherguide.contents.SubTitleContents;
 import com.beckytech.physicsgrade9thteacherguide.contents.TitleContents;
 import com.beckytech.physicsgrade9thteacherguide.model.Model;
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdListener;
 import com.github.barteksc.pdfviewer.BuildConfig;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
@@ -51,6 +54,7 @@ import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements Adapter.onBookClicked {
 
@@ -62,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
     private final SubTitleContents subTitleContents = new SubTitleContents();
     private DrawerLayout drawerLayout;
     private AdView adView;
+    private com.facebook.ads.AdView fbAds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +79,39 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
         setAds();
         allContents();
         adaptiveAds();
+        facebookAds();
+    }
+
+    private void facebookAds() {
+        Random random = new Random();
+        int rand = random.nextInt(100) + 1;
+        LinearLayout banner_container = findViewById(R.id.banner_container);
+        if (rand % 3 == 0)
+            fbAds = new com.facebook.ads.AdView(this, "813997437115809_1166976755151207", com.facebook.ads.AdSize.RECTANGLE_HEIGHT_250);
+        else
+            fbAds = new com.facebook.ads.AdView(this, "813997437115809_1166980901817459", com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+        banner_container.addView(fbAds);
+        fbAds.loadAd(fbAds.buildLoadAdConfig().withAdListener(new AdListener() {
+            @Override
+            public void onError(Ad ad, com.facebook.ads.AdError adError) {
+                Log.d(MainActivity.this.getPackageName(), "onError");
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+                Log.d(MainActivity.this.getPackageName(), "onAdLoaded");
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+                Log.d(MainActivity.this.getPackageName(), "onAdClicked");
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+                Log.d(MainActivity.this.getPackageName(), "onLoggingImpression");
+            }
+        }).build());
     }
 
     private void allContents() {
@@ -242,8 +280,8 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
         }
 
         if (item.getItemId() == R.id.action_update) {
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-            int lastVersion = pref.getInt("lastVersion", 1);
+            SharedPreferences pref = getSharedPreferences(MainActivity.this.getLocalClassName(), Context.MODE_PRIVATE);
+            int lastVersion = pref.getInt("lastVersion", com.beckytech.physicsgrade9thteacherguide.BuildConfig.VERSION_CODE);
             String url = "https://play.google.com/store/apps/details?id=" + getPackageName();
             if (lastVersion < BuildConfig.VERSION_CODE) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
@@ -321,8 +359,13 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
     }
 
     @Override
-    public void onBackPressed() {
-        Toast.makeText(this, "Double tab to exit!", Toast.LENGTH_SHORT).show();
-        super.onBackPressed();
+    protected void onDestroy() {
+        if (adView != null)
+            adView.destroy();
+
+        if (fbAds != null)
+            fbAds.destroy();
+
+        super.onDestroy();
     }
 }
