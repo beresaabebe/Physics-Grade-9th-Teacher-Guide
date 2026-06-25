@@ -39,7 +39,6 @@ import com.beckytech.physicsgrade9thteacherguide.contents.TitleContents;
 import com.beckytech.physicsgrade9thteacherguide.model.Model;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdListener;
-import com.github.barteksc.pdfviewer.BuildConfig;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -66,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
     private final SubTitleContents subTitleContents = new SubTitleContents();
     private DrawerLayout drawerLayout;
     private AdView adView;
-    private com.facebook.ads.AdView fbAds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,39 +77,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
         setAds();
         allContents();
         adaptiveAds();
-        facebookAds();
-    }
-
-    private void facebookAds() {
-        Random random = new Random();
-        int rand = random.nextInt(100) + 1;
-        LinearLayout banner_container = findViewById(R.id.banner_container);
-        if (rand % 3 == 0)
-            fbAds = new com.facebook.ads.AdView(this, "813997437115809_1166976755151207", com.facebook.ads.AdSize.RECTANGLE_HEIGHT_250);
-        else
-            fbAds = new com.facebook.ads.AdView(this, "813997437115809_1166980901817459", com.facebook.ads.AdSize.BANNER_HEIGHT_50);
-        banner_container.addView(fbAds);
-        fbAds.loadAd(fbAds.buildLoadAdConfig().withAdListener(new AdListener() {
-            @Override
-            public void onError(Ad ad, com.facebook.ads.AdError adError) {
-                Log.d(MainActivity.this.getPackageName(), "onError");
-            }
-
-            @Override
-            public void onAdLoaded(Ad ad) {
-                Log.d(MainActivity.this.getPackageName(), "onAdLoaded");
-            }
-
-            @Override
-            public void onAdClicked(Ad ad) {
-                Log.d(MainActivity.this.getPackageName(), "onAdClicked");
-            }
-
-            @Override
-            public void onLoggingImpression(Ad ad) {
-                Log.d(MainActivity.this.getPackageName(), "onLoggingImpression");
-            }
-        }).build());
     }
 
     private void allContents() {
@@ -161,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
     }
 
     private void getData() {
+        list.clear();
         for (int i = 0; i < titleContents.title.length; i++) {
             list.add(new Model(titleContents.title[i],
                     subTitleContents.subTitle[i],
@@ -171,7 +137,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
 
     private void adaptiveAds() {
         FrameLayout adContainerView = findViewById(R.id.adView_container);
-        //Create an AdView and put it into your FrameLayout
         adView = new AdView(this);
         adContainerView.addView(adView);
         adView.setAdUnitId(getString(R.string.banner_ad_unit_id));
@@ -179,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
     }
 
     public AdSize getAdSize() {
-        //Determine the screen width to use for the ad width.
         Display display = getWindowManager().getDefaultDisplay();
         DisplayMetrics outMetrics = new DisplayMetrics();
         display.getMetrics(outMetrics);
@@ -187,19 +151,15 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
         float widthPixels = outMetrics.widthPixels;
         float density = outMetrics.density;
 
-        //you can also pass your selected width here in dp
         int adWidth = (int) (widthPixels / density);
 
-        //return the optimal size depends on your orientation (landscape or portrait)
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth);
     }
 
     public void loadBanner() {
         AdRequest adRequest = new AdRequest.Builder().build();
         AdSize adSize = getAdSize();
-        // Set the adaptive ad size to the ad view.
         adView.setAdSize(adSize);
-        // Start loading the ad in the background.
         adView.loadAd(adRequest);
     }
 
@@ -220,21 +180,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
                         mInterstitialAd = null;
                         setAds();
                     }
-
-                    @Override
-                    public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-                        // Called when fullscreen content failed to show.
-                        Log.d("TAG", "The ad failed to show.");
-                    }
-
-                    @Override
-                    public void onAdShowedFullScreenContent() {
-                        // Called when fullscreen content is shown.
-                        // Make sure to set your reference to null so you don't
-                        // show it a second time.
-                        mInterstitialAd = null;
-                        Log.d("TAG", "The ad was shown.");
-                    }
                 });
             } else {
                 startActivity(new Intent(this, AboutActivity.class));
@@ -242,9 +187,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
         }
 
         if (item.getItemId() == R.id.action_rate) {
-            String pkg = getPackageName();
-            startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("http://play.google.com/store/apps/details?id=" + pkg)));
+            AppRate.showRateDialog(this, null);
         }
 
         if (item.getItemId() == R.id.action_more_apps) {
@@ -258,17 +201,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
                         mInterstitialAd = null;
                         setAds();
                     }
-
-                    @Override
-                    public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-                        Log.d("TAG", "The ad failed to show.");
-                    }
-
-                    @Override
-                    public void onAdShowedFullScreenContent() {
-                        mInterstitialAd = null;
-                        Log.d("TAG", "The ad was shown.");
-                    }
                 });
             } else {
                 startActivity(new Intent(this, MoreAppsActivity.class));
@@ -280,62 +212,34 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
         }
 
         if (item.getItemId() == R.id.action_update) {
-            SharedPreferences pref = getSharedPreferences(MainActivity.this.getLocalClassName(), Context.MODE_PRIVATE);
-            int lastVersion = pref.getInt("lastVersion", com.beckytech.physicsgrade9thteacherguide.BuildConfig.VERSION_CODE);
             String url = "https://play.google.com/store/apps/details?id=" + getPackageName();
-            if (lastVersion < BuildConfig.VERSION_CODE) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-            } else {
-                Toast.makeText(this, "No update available!", Toast.LENGTH_SHORT).show();
-            }
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
         }
         if (item.getItemId() == R.id.action_exit) {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this, R.style.MyAlertDialog);
             builder.setTitle("Exit")
                     .setMessage("Do you want to close?")
                     .setPositiveButton("Yes", (dialog, which) -> {
-                        System.exit(0);
-                        finish();
+                        finishAffinity();
                     })
                     .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                    .setBackground(getResources().getDrawable(R.drawable.nav_header_bg, null))
                     .show();
         }
     }
 
     @Override
     public void clickedBook(Model model) {
-        int rand = (int) (Math.random() * 100);
-        if (rand % 2 != 0) {
-            if (mInterstitialAd != null) {
-                mInterstitialAd.show(MainActivity.this);
-                mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
-                    @Override
-                    public void onAdDismissedFullScreenContent() {
-                        super.onAdDismissedFullScreenContent();
-                        startActivity(new Intent(MainActivity.this, BookDetailActivity.class).putExtra("data", model));
-                        mInterstitialAd = null;
-                        setAds();
-                    }
-
-                    @Override
-                    public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-                        // Called when fullscreen content failed to show.
-                        Log.d("TAG", "The ad failed to show.");
-                    }
-
-                    @Override
-                    public void onAdShowedFullScreenContent() {
-                        // Called when fullscreen content is shown.
-                        // Make sure to set your reference to null so you don't
-                        // show it a second time.
-                        mInterstitialAd = null;
-                        Log.d("TAG", "The ad was shown.");
-                    }
-                });
-            } else {
-                startActivity(new Intent(this, BookDetailActivity.class).putExtra("data", model));
-            }
+        if (mInterstitialAd != null) {
+            mInterstitialAd.show(MainActivity.this);
+            mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                @Override
+                public void onAdDismissedFullScreenContent() {
+                    super.onAdDismissedFullScreenContent();
+                    startActivity(new Intent(MainActivity.this, BookDetailActivity.class).putExtra("data", model));
+                    mInterstitialAd = null;
+                    setAds();
+                }
+            });
         } else {
             startActivity(new Intent(this, BookDetailActivity.class).putExtra("data", model));
         }
@@ -344,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
     private void setAds() {
         AdRequest adRequest = new AdRequest.Builder().build();
 
-        InterstitialAd.load(this, getString(R.string.test_interstitial_ads_unit_id), adRequest,
+        InterstitialAd.load(this, getString(R.string.interstitial_ads_unit_id), adRequest,
                 new InterstitialAdLoadCallback() {
                     @Override
                     public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
@@ -362,9 +266,6 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
     protected void onDestroy() {
         if (adView != null)
             adView.destroy();
-
-        if (fbAds != null)
-            fbAds.destroy();
 
         super.onDestroy();
     }

@@ -12,9 +12,14 @@
     <string name="facebook">Facebook</string>
     <string name="phone">Phone</string>
     <string name="version">Version - </string>
+
     <string name="banner_ad_unit_id">ca-app-pub-8504401574247581/6230881440</string>
-    <string name="test_interstitial_ads_unit_id">ca-app-pub-8504401574247581/2076014012</string>
+    <string name="interstitial_ads_unit_id">ca-app-pub-8504401574247581/2076014012</string>
     <string name="app_open_ads_unit_id">ca-app-pub-8504401574247581/6710173841</string>
+    <string name="native_ads_unit_id">ca-app-pub-8504401574247581/1425324937</string>
+    <string name="rewarded_interstitial_ads_unit_id">ca-app-pub-8504401574247581/9260004384</string>
+    <string name="rewarded_ads_unit_id">ca-app-pub-8504401574247581/8134624970</string>
+
     <string name="privacy_title">Privacy</string>
     <string name="contact_us">Contact us</string>
     <string name="more_apps_for_grade_9th">More apps for Grade 9th</string>

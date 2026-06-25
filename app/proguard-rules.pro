@@ -19,3 +19,22 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# R8 missing classes for Unity Ads Mediation
+-dontwarn com.unity3d.ads.AdFormat
+-dontwarn com.unity3d.ads.IUnityAdsInitializationListener
+-dontwarn com.unity3d.ads.IUnityAdsLoadListener
+-dontwarn com.unity3d.ads.IUnityAdsShowListener
+-dontwarn com.unity3d.ads.IUnityAdsTokenListener
+-dontwarn com.unity3d.ads.TokenConfiguration
+-dontwarn com.unity3d.ads.UnityAds$UnityAdsInitializationError
+-dontwarn com.unity3d.ads.UnityAds$UnityAdsLoadError
+-dontwarn com.unity3d.ads.UnityAds$UnityAdsShowError
+-dontwarn com.unity3d.ads.UnityAds
+-dontwarn com.unity3d.ads.UnityAdsShowOptions
+-dontwarn com.unity3d.ads.metadata.MediationMetaData
+-dontwarn com.unity3d.services.banners.BannerErrorCode
+-dontwarn com.unity3d.services.banners.BannerErrorInfo
+-dontwarn com.unity3d.services.banners.BannerView$IListener
+-dontwarn com.unity3d.services.banners.BannerView
+-dontwarn com.unity3d.services.banners.UnityBannerSize

@@ -78,12 +78,11 @@
 
     </RelativeLayout>
 
-    <com.github.barteksc.pdfviewer.PDFView
-        android:id="@+id/pdfView"
-        android:paddingStart="-5dp"
-        android:paddingEnd="-5dp"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/adView_container"
         android:layout_below="@id/toolbar_Rl" />
 
     <FrameLayout
