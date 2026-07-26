@@ -1,4 +1,0 @@
-- [x] Implement ad caching in `Adapter.java`.
-- [x] Refactor `BookDetailActivity.java` for ad persistence in `PageAdapter`.
-- [x] Refine `AppOpenAd` logic in `MyApplication.java`.
-- [x] Verify fix for disappearing ads.
