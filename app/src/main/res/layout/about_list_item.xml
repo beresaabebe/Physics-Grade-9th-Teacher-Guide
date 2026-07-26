@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
     android:background="@color/white"
+    android:fitsSystemWindows="true"
     ads:cardCornerRadius="3dp"
     ads:cardElevation="5dp"
     ads:cardMaxElevation="10dp">

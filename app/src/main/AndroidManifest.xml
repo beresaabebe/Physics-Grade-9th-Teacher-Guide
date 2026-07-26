@@ -33,19 +33,15 @@
             android:hardwareAccelerated="true" />
         <activity
             android:name=".MainActivity"
-            android:exported="false"
-            android:hardwareAccelerated="true" />
-        <activity
-            android:name=".activity.SplashActivity"
             android:exported="true"
-            android:hardwareAccelerated="true"
-            android:theme="@style/SplashTheme">
+            android:launchMode="singleTop"
+            android:hardwareAccelerated="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+        </activity>
+        <!-- Removed SplashActivity -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-8504401574247581~6861382935" />

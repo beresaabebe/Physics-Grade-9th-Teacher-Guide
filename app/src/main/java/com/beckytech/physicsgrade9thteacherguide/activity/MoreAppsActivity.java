@@ -27,7 +27,6 @@ import com.facebook.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,8 +111,6 @@ public class MoreAppsActivity extends AppCompatActivity implements MoreAppsAdapt
     }
 
     private void adaptiveAds() {
-        MobileAds.initialize(this, initializationStatus -> {
-        });
         FrameLayout adContainerView = findViewById(R.id.adView_container);
         //Create an AdView and put it into your FrameLayout
         adView = new AdView(this);

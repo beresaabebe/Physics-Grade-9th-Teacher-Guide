@@ -41,10 +41,8 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.OnUserEarnedRewardListener;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
-import com.google.android.gms.ads.nativead.MediaView;
 import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.ads.nativead.NativeAdView;
 import com.google.android.gms.ads.rewarded.RewardedAd;
@@ -74,6 +72,7 @@ public class BookDetailActivity extends AppCompatActivity {
     private InterstitialAd interstitialAd;
     private AppUpdateManager appUpdateManager;
     private final Random random = new Random();
+    private int pageFlipCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -246,6 +245,9 @@ public class BookDetailActivity extends AppCompatActivity {
     }
 
     private void showRewardedAd() {
+        pageFlipCount++;
+        if (pageFlipCount % 5 != 0) return;
+
         int r = random.nextInt(10);
         if (r % 2 == 0) {
             if (rewardedAd != null) {
@@ -380,7 +382,7 @@ public class BookDetailActivity extends AppCompatActivity {
                 int pageIndex = (int) items.get(position);
                 ((PageViewHolder) holder).bind(pageIndex);
             } else if (holder instanceof AdViewHolder) {
-                ((AdViewHolder) holder).bind();
+                ((AdViewHolder) holder).bind(position);
             }
         }
 
@@ -413,15 +415,30 @@ public class BookDetailActivity extends AppCompatActivity {
                 container = itemView.findViewById(R.id.ad_container);
             }
 
-            public void bind() {
-                container.removeAllViews();
-                loadNativeAd(container);
+            public void bind(int position) {
+                Object adItem = items.get(position);
+                if (adItem instanceof NativeAd) {
+                    NativeAdView adView = (NativeAdView) getLayoutInflater().inflate(R.layout.item_native_ad, null);
+                    populateNativeAdView((NativeAd) adItem, adView);
+                    container.removeAllViews();
+                    container.addView(adView);
+                } else if (adItem instanceof AdView) {
+                    AdView adView = (AdView) adItem;
+                    if (adView.getParent() != null) {
+                        ((ViewGroup) adView.getParent()).removeView(adView);
+                    }
+                    container.removeAllViews();
+                    container.addView(adView);
+                } else {
+                    loadNativeAd(container, position);
+                }
             }
 
-            private void loadNativeAd(LinearLayout container) {
+            private void loadNativeAd(LinearLayout container, int position) {
                 AdLoader adLoader = new AdLoader.Builder(BookDetailActivity.this, getString(R.string.native_ads_unit_id))
                         .forNativeAd(nativeAd -> {
-                            NativeAdView adView = (NativeAdView) getLayoutInflater().inflate(R.layout.gnt_medium_template_view, null);
+                            items.set(position, nativeAd);
+                            NativeAdView adView = (NativeAdView) getLayoutInflater().inflate(R.layout.item_native_ad, null);
                             populateNativeAdView(nativeAd, adView);
                             container.removeAllViews();
                             container.addView(adView);
@@ -429,20 +446,26 @@ public class BookDetailActivity extends AppCompatActivity {
                         .withAdListener(new AdListener() {
                             @Override
                             public void onAdFailedToLoad(@NonNull LoadAdError adError) {
-                                loadMediumRectangle(container);
+                                loadMediumRectangle(container, position);
                             }
                         }).build();
                 adLoader.loadAd(new AdRequest.Builder().build());
             }
 
-            private void loadMediumRectangle(LinearLayout container) {
+            private void loadMediumRectangle(LinearLayout container, int position) {
                 AdView adView = new AdView(BookDetailActivity.this);
                 adView.setAdSize(AdSize.MEDIUM_RECTANGLE);
                 adView.setAdUnitId(getString(R.string.banner_ad_unit_id));
                 adView.setAdListener(new AdListener() {
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError adError) {
-                        loadNormalBanner(container);
+                        loadNormalBanner(container, position);
+                    }
+
+                    @Override
+                    public void onAdLoaded() {
+                        super.onAdLoaded();
+                        items.set(position, adView);
                     }
                 });
                 container.removeAllViews();
@@ -450,10 +473,17 @@ public class BookDetailActivity extends AppCompatActivity {
                 adView.loadAd(new AdRequest.Builder().build());
             }
 
-            private void loadNormalBanner(LinearLayout container) {
+            private void loadNormalBanner(LinearLayout container, int position) {
                 AdView adView = new AdView(BookDetailActivity.this);
                 adView.setAdSize(AdSize.BANNER);
                 adView.setAdUnitId(getString(R.string.banner_ad_unit_id));
+                adView.setAdListener(new AdListener() {
+                    @Override
+                    public void onAdLoaded() {
+                        super.onAdLoaded();
+                        items.set(position, adView);
+                    }
+                });
                 container.removeAllViews();
                 container.addView(adView);
                 adView.loadAd(new AdRequest.Builder().build());
@@ -465,30 +495,43 @@ public class BookDetailActivity extends AppCompatActivity {
                 adView.setCallToActionView(adView.findViewById(R.id.ad_call_to_action));
                 adView.setIconView(adView.findViewById(R.id.ad_app_icon));
                 adView.setMediaView(adView.findViewById(R.id.ad_media));
+                adView.setPriceView(adView.findViewById(R.id.ad_price));
+                adView.setStoreView(adView.findViewById(R.id.ad_store));
+                adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
 
-                ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
-                MediaView mediaView = adView.getMediaView();
-                mediaView.setMediaContent(nativeAd.getMediaContent());
+                if (adView.getHeadlineView() != null) {
+                    ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
+                }
+
+                if (adView.getMediaView() != null && nativeAd.getMediaContent() != null) {
+                    adView.getMediaView().setMediaContent(nativeAd.getMediaContent());
+                }
 
                 if (nativeAd.getBody() == null) {
-                    adView.getBodyView().setVisibility(View.INVISIBLE);
+                    if (adView.getBodyView() != null) adView.getBodyView().setVisibility(View.INVISIBLE);
                 } else {
-                    adView.getBodyView().setVisibility(View.VISIBLE);
-                    ((TextView) adView.getBodyView()).setText(nativeAd.getBody());
+                    if (adView.getBodyView() != null) {
+                        adView.getBodyView().setVisibility(View.VISIBLE);
+                        ((TextView) adView.getBodyView()).setText(nativeAd.getBody());
+                    }
                 }
 
                 if (nativeAd.getCallToAction() == null) {
-                    adView.getCallToActionView().setVisibility(View.INVISIBLE);
+                    if (adView.getCallToActionView() != null) adView.getCallToActionView().setVisibility(View.INVISIBLE);
                 } else {
-                    adView.getCallToActionView().setVisibility(View.VISIBLE);
-                    ((Button) adView.getCallToActionView()).setText(nativeAd.getCallToAction());
+                    if (adView.getCallToActionView() != null) {
+                        adView.getCallToActionView().setVisibility(View.VISIBLE);
+                        ((Button) adView.getCallToActionView()).setText(nativeAd.getCallToAction());
+                    }
                 }
 
                 if (nativeAd.getIcon() == null) {
-                    adView.getIconView().setVisibility(View.GONE);
+                    if (adView.getIconView() != null) adView.getIconView().setVisibility(View.GONE);
                 } else {
-                    ((ImageView) adView.getIconView()).setImageDrawable(nativeAd.getIcon().getDrawable());
-                    adView.getIconView().setVisibility(View.VISIBLE);
+                    if (adView.getIconView() != null) {
+                        ((ImageView) adView.getIconView()).setImageDrawable(nativeAd.getIcon().getDrawable());
+                        adView.getIconView().setVisibility(View.VISIBLE);
+                    }
                 }
 
                 adView.setNativeAd(nativeAd);

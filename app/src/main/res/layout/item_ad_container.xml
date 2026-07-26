@@ -7,6 +7,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:background="@drawable/nav_header_bg"
+    android:fitsSystemWindows="true"
     android:padding="2dp">
     <!-- Ad content will be added programmatically -->
 </LinearLayout>

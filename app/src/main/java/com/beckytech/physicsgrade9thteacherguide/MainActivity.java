@@ -27,6 +27,9 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.beckytech.physicsgrade9thteacherguide.activity.AboutActivity;
 import com.beckytech.physicsgrade9thteacherguide.activity.BookDetailActivity;
 import com.beckytech.physicsgrade9thteacherguide.activity.MoreAppsActivity;
@@ -37,8 +40,6 @@ import com.beckytech.physicsgrade9thteacherguide.contents.ContentStartPage;
 import com.beckytech.physicsgrade9thteacherguide.contents.SubTitleContents;
 import com.beckytech.physicsgrade9thteacherguide.contents.TitleContents;
 import com.beckytech.physicsgrade9thteacherguide.model.Model;
-import com.facebook.ads.Ad;
-import com.facebook.ads.AdListener;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -55,7 +56,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements Adapter.onBookClicked {
+public class MainActivity extends AppCompatActivity implements Adapter.onBookClicked, MyApplication.OnAdEventListener {
 
     private InterstitialAd mInterstitialAd;
     private final List<Model> list = new ArrayList<>();
@@ -65,15 +66,19 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
     private final SubTitleContents subTitleContents = new SubTitleContents();
     private DrawerLayout drawerLayout;
     private AdView adView;
+    private View loadingOverlay;
+    private final Handler loadingHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_drawer);
 
+        loadingOverlay = findViewById(R.id.loading_overlay);
+        ((MyApplication) getApplication()).setOnAdEventListener(this);
+        loadingHandler.postDelayed(this::hideLoading, 5000);
+
         AppRate.app_launched(this);
-        MobileAds.initialize(this, initializationStatus -> {
-        });
         setAds();
         allContents();
         adaptiveAds();
@@ -112,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         getData();
-        Adapter adapter = new Adapter(list, this);
+        Adapter adapter = new Adapter(list, this, this);
         recyclerView.setAdapter(adapter);
     }
 
@@ -267,6 +272,23 @@ public class MainActivity extends AppCompatActivity implements Adapter.onBookCli
         if (adView != null)
             adView.destroy();
 
+        loadingHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
+    }
+
+    private void hideLoading() {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onAdDismissed() {
+        hideLoading();
+    }
+
+    @Override
+    public void onAdFailed() {
+        hideLoading();
     }
 }

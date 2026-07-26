@@ -23,8 +23,18 @@ import java.util.Date;
 
 public class MyApplication extends Application implements Application.ActivityLifecycleCallbacks, DefaultLifecycleObserver {
 
+    public interface OnAdEventListener {
+        void onAdDismissed();
+        void onAdFailed();
+    }
+
     private AppOpenAdManager appOpenAdManager;
     private Activity currentActivity;
+    private OnAdEventListener onAdEventListener;
+
+    public void setOnAdEventListener(OnAdEventListener listener) {
+        this.onAdEventListener = listener;
+    }
 
     @Override
     public void onCreate() {
@@ -75,9 +85,13 @@ public class MyApplication extends Application implements Application.ActivityLi
         private AppOpenAd appOpenAd = null;
         private boolean isLoadingAd = false;
         private boolean isShowingAd = false;
+        private boolean isFirstLaunch = true;
         private long loadTime = 0;
+        private final long launchTime;
 
-        public AppOpenAdManager() {}
+        public AppOpenAdManager() {
+            launchTime = System.currentTimeMillis();
+        }
 
         private void loadAd(Context context) {
             if (isLoadingAd || isAdAvailable()) {
@@ -97,12 +111,25 @@ public class MyApplication extends Application implements Application.ActivityLi
                             isLoadingAd = false;
                             loadTime = (new Date()).getTime();
                             Log.d(LOG_TAG, "onAdLoaded.");
+                            
+                            // If it's first launch, show it immediately when loaded, with a 7-second cutoff
+                            long timeSinceLaunch = System.currentTimeMillis() - launchTime;
+                            if (isFirstLaunch && currentActivity != null && timeSinceLaunch < 7000) {
+                                showAdIfAvailable(currentActivity);
+                                isFirstLaunch = false;
+                            } else {
+                                isFirstLaunch = false; // Ad loaded too late, don't auto-show
+                            }
                         }
 
                         @Override
                         public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                             isLoadingAd = false;
                             Log.d(LOG_TAG, "onAdFailedToLoad: " + loadAdError.getMessage());
+                            isFirstLaunch = false; // Stop trying first launch logic on failure
+                            if (onAdEventListener != null) {
+                                onAdEventListener.onAdFailed();
+                            }
                         }
                     });
         }
@@ -136,6 +163,9 @@ public class MyApplication extends Application implements Application.ActivityLi
                             appOpenAd = null;
                             isShowingAd = false;
                             Log.d(LOG_TAG, "onAdDismissedFullScreenContent.");
+                            if (onAdEventListener != null) {
+                                onAdEventListener.onAdDismissed();
+                            }
                             loadAd(activity);
                         }
 
@@ -144,6 +174,9 @@ public class MyApplication extends Application implements Application.ActivityLi
                             appOpenAd = null;
                             isShowingAd = false;
                             Log.d(LOG_TAG, "onAdFailedToShowFullScreenContent: " + adError.getMessage());
+                            if (onAdEventListener != null) {
+                                onAdEventListener.onAdFailed();
+                            }
                             loadAd(activity);
                         }
 

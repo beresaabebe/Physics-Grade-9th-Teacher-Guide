@@ -30,7 +30,6 @@ import com.facebook.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +48,6 @@ public class AboutActivity extends AppCompatActivity implements AboutAdapter.OnL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-        MobileAds.initialize(this, initializationStatus -> {
-        });
         adaptiveAds();
         allContents();
         facebookAds();
